@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Dropwizard Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Vertx experiment - Dropwizard Dashboard">
+        <meta name="author" content="Kim A. Betti">
+
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <style type="text/css">
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/static/css/application.css" rel="stylesheet">
+    </head>
+    <body>
+
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <a class="brand" href="#">Dropwizard Dashboard!</a>
+
+                <div class="nav-collapse">
+                    <ul class="nav">
+                        <li class="active"><a href="#">Dashboard</a></li>
+                        <li><a href="http://github.com/kimble">Github</a></li>
+                        <li><a href="http://blog.developer-b.com/">Blog</a></li>
+                    </ul>
+
+                    <ul class="nav"  data-bind="template: { name: 'navigation-component-link', foreach: pageComponents }"></ul>
+                </div>
+
+                <script type="text/html" id="navigation-component-link">
+                    <li><a href="#${dom_id}">${name}</a></li>
+                </script>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+
+        <div class="hero-unit">
+            <div class="row">
+                <div class="span5" style="text-align: center">
+                    <h1>Dropwizard dashboard</h1>
+
+                    <div class="alert alert-info" data-bind="visible: !connectionToProxyEstablished">
+                        Please wait while contact with server is established!
+                    </div>
+                </div>
+                <div class="span5">
+                    <table class="table hiddenFromStart">
+                        <tbody>
+                        <tr>
+                            <th>Virtual machine name:</th>
+                            <td><span data-bind="text: vminfo().name"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Virtual machine version:</th>
+                            <td><span data-bind="text: vminfo().version"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Application uptime:</th>
+                            <td><span data-bind="text: readableVmUptime"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Server time:</th>
+                            <td><span data-bind="text: readableServerTime"></span> <i id="heart" class="icon-heart" style="opacity: 0.3"></i></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="alert alert-error" data-bind="visible: connectionToProxyLost">
+            Lost connection to proxy - Refresh page to reconnect
+        </div>
+
+
+        <!--------
+             R e n d e r    a l l    p a g e    c o m p o n e n t s
+                                                             ---------->
+
+        <div data-bind="template: { name: 'component-template', foreach: pageComponents }"></div>
+
+        <script type="text/html" id="component-template">
+            <a name="${dom_id}"></a>
+            <div class="page-header hiddenFromStart">
+                <h1>${name} <small>${shortDescription}</small></h1>
+            </div>
+            <div class="row" id="${dom_id}"></div>
+        </script>
+
+
+        <hr>
+
+        <footer>
+            <p><a href="http://no.linkedin.com/pub/kim-betti/30/4b4/562"><i class="icon-check"></i> <b>Kim A. Betti</b></a></p>
+        </footer>
+
+        <!-- 3rd party -->
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript" src="/static/js/lib/smoothie.js/smoothie.js"></script>
+        <script type="text/javascript" src="/static/js/lib/jquery.min.js"></script>
+        <script type="text/javascript" src="/static/js/lib/jquery.tmpl.js"></script>
+        <script type="text/javascript" src="/static/js/lib/moment.min.js"></script>
+        <script type="text/javascript" src="/static/js/lib/knockout.min.js"></script>
+
+        <!-- Data binding for Knockout -->
+        <script type="text/javascript" src="/static/js/app/bindings.js"></script>
+
+        <!-- Visualization -->
+        <script type="text/javascript" src="/static/js/app/vm-information-component.js"></script>
+        <script type="text/javascript" src="/static/js/app/gc-compartments-component.js"></script>
+        <script type="text/javascript" src="/static/js/app/heap-component.js"></script>
+        <script type="text/javascript" src="/static/js/app/vm-thread-component.js"></script>
+        <script type="text/javascript" src="/static/js/app/logging-component.js"></script>
+
+        <script type="text/javascript" src="/static/js/app/application.js"></script>
+
+
+    </body>
+</html>

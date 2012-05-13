@@ -1,0 +1,32 @@
+p.info {
+    font-size: 1.1em;
+    font-style: italic;
+}
+
+div.page-header {
+    margin-top: 4em;
+}
+
+.hiddenFromStart {
+    visibility: hidden;
+}
+
+.table tr:first-child * {
+    border-top: 0;
+}
+
+div.hero-unit {
+    padding: 30px;
+}
+
+footer {
+    text-align: right;
+}
+
+footer a {
+    color: #222;
+}
+
+footer a:hover {
+    text-decoration: none;
+}
