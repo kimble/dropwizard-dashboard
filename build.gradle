@@ -1,0 +1,11 @@
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    groovy group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.0.0'
+
+    compile 'org.vert-x:vertx-lang-groovy:1.2.1.final'
+}
