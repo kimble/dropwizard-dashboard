@@ -1,4 +1,7 @@
 apply plugin: 'groovy'
+apply plugin: 'application'
+
+mainClassName = 'org.vertx.java.deploy.impl.cli.Starter'
 
 repositories {
     mavenCentral()
@@ -7,5 +10,14 @@ repositories {
 dependencies {
     groovy group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.0.0'
 
-    compile 'org.vert-x:vertx-lang-groovy:1.2.1.final'
+    compile 'org.vert-x:vertx-lang-groovy:1.2.3.final'
+}
+
+task uberjar(type: Jar) {
+    from files(sourceSets.main.output.classesDir)
+    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
+
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
 }
