@@ -22,3 +22,7 @@ http://knockoutjs.com/
 http://momentjs.com/
 http://smoothiecharts.org/
 https://google-developers.appspot.com/chart/
+
+
+-------------------
+[![endorse](http://api.coderwall.com/kimble/endorsecount.png)](http://coderwall.com/kimble)
