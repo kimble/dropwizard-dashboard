@@ -21,3 +21,8 @@ task uberjar(type: Jar) {
         attributes 'Main-Class': mainClassName
     }
 }
+
+task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
+    gradleVersion = '1.3'
+}
+
