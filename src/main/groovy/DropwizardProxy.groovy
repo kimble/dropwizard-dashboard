@@ -9,11 +9,14 @@ import org.vertx.groovy.core.http.WebSocket
 import java.util.concurrent.CopyOnWriteArraySet
 import groovy.json.JsonSlurper
 
-Vertx vx = vertx;
+def metricsHost = "localhost"
+def metricsPort = 8081
+def dashboardPort = 9000
+
+Vertx vx = vertx
 HttpServer server = vx.createHttpServer()
 
-HttpClient httpClient = vx.createHttpClient(host: "localhost", port: 8081)
-DropwizardClient client = new DropwizardClient(client: httpClient)
+DropwizardClient client = new DropwizardClient(vx: vx, host: metricsHost, port: metricsPort)
 Listeners listeners = new Listeners()
 
 vx.setPeriodic(1000) {
@@ -37,10 +40,27 @@ server.websocketHandler { WebSocket socket ->
 
 class DropwizardClient {
 
+    Vertx vx
     HttpClient client
+    def host
+    def port
+    def serverUnreachable
 
-    void withMetrics(Closure handler) {
+    DropwizardClient(params) {
+        vx = params.vx
+        host = params.host
+        port = params.port
+
+        newClient()
+    }
+
+    def withMetrics(Closure handler) {
         client.getNow("/metrics") { HttpClientResponse response ->
+            if (serverUnreachable) {
+                println "Connection restored"
+                serverUnreachable = false
+            }
+
             def buffer = new Buffer()
 
             // It should be possible to use bodyHandler, but that didn't work as adverted
@@ -55,14 +75,25 @@ class DropwizardClient {
         }
     }
 
-    void setClient(HttpClient httpClient) {
-        client = httpClient
-        client.exceptionHandler DropwizardClient.&exceptionHandler
+    def newClient() {
+        if (host == null || host.isEmpty() || port == null || port < 1) {
+            throw new IllegalArgumentException("Invalid host / port: ${host}:${port}")
+        }
+
+        client = vx.createHttpClient(host: host, port: port)
+        client.exceptionHandler this.&exceptionHandler
     }
 
-    static void exceptionHandler(Exception ex) {
+    def exceptionHandler(Exception ex) {
         System.err.println("Http client exception: ${ex.message}")
-        ex.print(System.err)
+
+        if (ex instanceof java.net.ConnectException) {
+            serverUnreachable = true
+            client.close()
+            newClient()
+        } else {
+            ex.printStackTrace(System.err)
+        }
     }
 
 }
@@ -115,6 +146,5 @@ server.requestHandler { request ->
     }
 }
 
-int port = 9000
-server.listen(port)
-println "Running at port $port"
+server.listen(dashboardPort)
+println "Running at port $dashboardPort"
