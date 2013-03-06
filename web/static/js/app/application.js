@@ -62,6 +62,16 @@ function initializeWebsocketConnection() {
         });
     }
 
+    var body = $("body");
+
+    Dropwizard.bindings.proxyConnectionToDropwizardLost.subscribe(function () {
+        body.fadeTo(500, 0.6);
+    });
+
+    Dropwizard.bindings.proxyConnectionToDropwizardRestored.subscribe(function () {
+        body.fadeTo(500, 1.0);
+    });
+
     function prettyPrintString(string) {
         string = string.replace("_", " ");
         return string.charAt(0).toUpperCase() + string.slice(1);
