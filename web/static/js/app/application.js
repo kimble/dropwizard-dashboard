@@ -32,6 +32,12 @@ function initializeWebsocketConnection() {
                     initialized = true;
                 }
             }
+            if (json.namespace === "connectionLost") {
+                Dropwizard.bindings.proxyConnectionToDropwizardLost(true);
+            }
+            if (json.namespace === "connectionRestored") {
+                Dropwizard.bindings.proxyConnectionToDropwizardRestored(true);
+            }
         };
 
         socket.onerror = function(event) {

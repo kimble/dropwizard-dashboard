@@ -26,6 +26,16 @@ vx.setPeriodic(1000) {
         client.withMetrics { metrics ->
             listeners.push("metrics", metrics)
         }
+
+        client.onConnectionLost {
+            println "Connection to remote Dropwizard server has been lost :("
+            listeners.push("connectionLost", true)
+        }
+        
+        client.onConnectionRestored {
+            println "Connection restored"
+            listeners.push("connectionRestored", true)
+        }
     }
 }
 
@@ -42,9 +52,14 @@ class DropwizardClient {
 
     Vertx vx
     HttpClient client
+
     def host
     def port
+
     def serverUnreachable
+
+    Closure connectionRestoredHandler
+    Closure connectionLostHandler
 
     DropwizardClient(params) {
         vx = params.vx
@@ -54,11 +69,19 @@ class DropwizardClient {
         newClient()
     }
 
+    def onConnectionRestored(Closure handler) {
+        connectionRestoredHandler = handler
+    }
+
+    def onConnectionLost(Closure handler) {
+        connectionLostHandler = handler
+    }
+
     def withMetrics(Closure handler) {
         client.getNow("/metrics") { HttpClientResponse response ->
             if (serverUnreachable) {
-                println "Connection restored"
                 serverUnreachable = false
+                connectionRestoredHandler()
             }
 
             def buffer = new Buffer()
@@ -85,15 +108,24 @@ class DropwizardClient {
     }
 
     def exceptionHandler(Exception ex) {
-        System.err.println("Http client exception: ${ex.message}")
-
         if (ex instanceof java.net.ConnectException) {
-            serverUnreachable = true
-            client.close()
-            newClient()
+            connectionFailed()
         } else {
+            System.err.println("Http client exception: ${ex.message}")
             ex.printStackTrace(System.err)
         }
+    }
+
+    def connectionFailed() {
+        if (!serverUnreachable) {
+            connectionLostHandler()
+        }
+
+        serverUnreachable = true
+        
+        System.err.println("Attempting to reconnect...")
+        client.close()
+        newClient()
     }
 
 }
@@ -102,12 +134,12 @@ class Listeners {
 
     Set<WebSocket> sockets = new CopyOnWriteArraySet<WebSocket>()
 
-    void push(String topic, Map metrics) {
+    void push(String topic, data) {
         JsonBuilder builder = new JsonBuilder()
 
         builder {
             namespace   topic
-            payload     metrics
+            payload     data
         }
 
         distribute builder.toString()
