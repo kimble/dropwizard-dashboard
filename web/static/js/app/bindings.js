@@ -6,6 +6,9 @@
         connectionToProxyLost : ko.observable(false),
         connectionError : ko.observable(),
 
+        proxyConnectionToDropwizardLost : ko.observable(false),
+        proxyConnectionToDropwizardRestored : ko.observable(false),
+
         beforeSocketConnect : ko.observable(),
 
         pageComponents : ko.observableArray(),
@@ -30,6 +33,14 @@
 
             if (component.hasOwnProperty("onMetrics")) {
                 defaultBindings.metrics.subscribe(component.onMetrics);
+            }
+
+            if (component.hasOwnProperty("onDropwizardConnectionLost")) {
+                defaultBindings.proxyConnectionToDropwizardLost.subscribe(component.onDropwizardConnectionLost);
+            }
+
+            if (component.hasOwnProperty("onDropwizardConnectionRestored")) {
+                defaultBindings.proxyConnectionToDropwizardRestored.subscribe(component.onDropwizardConnectionRestored);
             }
 
             if (component.hasOwnProperty("beforeSocketConnect")) {
