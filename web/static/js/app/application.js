@@ -32,6 +32,12 @@ function initializeWebsocketConnection() {
                     initialized = true;
                 }
             }
+            if (json.namespace === "connectionLost") {
+                Dropwizard.bindings.proxyConnectionToDropwizardLost(true);
+            }
+            if (json.namespace === "connectionRestored") {
+                Dropwizard.bindings.proxyConnectionToDropwizardRestored(true);
+            }
         };
 
         socket.onerror = function(event) {
@@ -55,6 +61,16 @@ function initializeWebsocketConnection() {
             heart.fadeTo(300, 0.2);
         });
     }
+
+    var body = $("body");
+
+    Dropwizard.bindings.proxyConnectionToDropwizardLost.subscribe(function () {
+        body.fadeTo(500, 0.6);
+    });
+
+    Dropwizard.bindings.proxyConnectionToDropwizardRestored.subscribe(function () {
+        body.fadeTo(500, 1.0);
+    });
 
     function prettyPrintString(string) {
         string = string.replace("_", " ");

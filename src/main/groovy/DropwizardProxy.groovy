@@ -9,11 +9,14 @@ import org.vertx.groovy.core.http.WebSocket
 import java.util.concurrent.CopyOnWriteArraySet
 import groovy.json.JsonSlurper
 
-Vertx vx = vertx;
+def metricsHost = "localhost"
+def metricsPort = 8081
+def dashboardPort = 9000
+
+Vertx vx = vertx
 HttpServer server = vx.createHttpServer()
 
-HttpClient httpClient = vx.createHttpClient(host: "localhost", port: 8081)
-DropwizardClient client = new DropwizardClient(client: httpClient)
+DropwizardClient client = new DropwizardClient(vx: vx, host: metricsHost, port: metricsPort)
 Listeners listeners = new Listeners()
 
 vx.setPeriodic(1000) {
@@ -22,6 +25,16 @@ vx.setPeriodic(1000) {
     if (listeners.hasAtLeastOneListener()) {
         client.withMetrics { metrics ->
             listeners.push("metrics", metrics)
+        }
+
+        client.onConnectionLost {
+            println "Connection to remote Dropwizard server has been lost :("
+            listeners.push("connectionLost", true)
+        }
+        
+        client.onConnectionRestored {
+            println "Connection restored"
+            listeners.push("connectionRestored", true)
         }
     }
 }
@@ -37,10 +50,40 @@ server.websocketHandler { WebSocket socket ->
 
 class DropwizardClient {
 
+    Vertx vx
     HttpClient client
 
-    void withMetrics(Closure handler) {
+    def host
+    def port
+
+    def serverUnreachable
+
+    Closure connectionRestoredHandler
+    Closure connectionLostHandler
+
+    DropwizardClient(params) {
+        vx = params.vx
+        host = params.host
+        port = params.port
+
+        newClient()
+    }
+
+    def onConnectionRestored(Closure handler) {
+        connectionRestoredHandler = handler
+    }
+
+    def onConnectionLost(Closure handler) {
+        connectionLostHandler = handler
+    }
+
+    def withMetrics(Closure handler) {
         client.getNow("/metrics") { HttpClientResponse response ->
+            if (serverUnreachable) {
+                serverUnreachable = false
+                connectionRestoredHandler()
+            }
+
             def buffer = new Buffer()
 
             // It should be possible to use bodyHandler, but that didn't work as adverted
@@ -55,14 +98,34 @@ class DropwizardClient {
         }
     }
 
-    void setClient(HttpClient httpClient) {
-        client = httpClient
-        client.exceptionHandler DropwizardClient.&exceptionHandler
+    def newClient() {
+        if (host == null || host.isEmpty() || port == null || port < 1) {
+            throw new IllegalArgumentException("Invalid host / port: ${host}:${port}")
+        }
+
+        client = vx.createHttpClient(host: host, port: port)
+        client.exceptionHandler this.&exceptionHandler
     }
 
-    static void exceptionHandler(Exception ex) {
-        System.err.println("Http client exception: ${ex.message}")
-        ex.print(System.err)
+    def exceptionHandler(Exception ex) {
+        if (ex instanceof java.net.ConnectException) {
+            connectionFailed()
+        } else {
+            System.err.println("Http client exception: ${ex.message}")
+            ex.printStackTrace(System.err)
+        }
+    }
+
+    def connectionFailed() {
+        if (!serverUnreachable) {
+            connectionLostHandler()
+        }
+
+        serverUnreachable = true
+        
+        System.err.println("Attempting to reconnect...")
+        client.close()
+        newClient()
     }
 
 }
@@ -71,12 +134,12 @@ class Listeners {
 
     Set<WebSocket> sockets = new CopyOnWriteArraySet<WebSocket>()
 
-    void push(String topic, Map metrics) {
+    void push(String topic, data) {
         JsonBuilder builder = new JsonBuilder()
 
         builder {
             namespace   topic
-            payload     metrics
+            payload     data
         }
 
         distribute builder.toString()
@@ -115,6 +178,5 @@ server.requestHandler { request ->
     }
 }
 
-int port = 9000
-server.listen(port)
-println "Running at port $port"
+server.listen(dashboardPort)
+println "Running at port $dashboardPort"
