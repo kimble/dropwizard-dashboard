@@ -39,6 +39,16 @@ vx.setPeriodic(1000) {
     }
 }
 
+vx.setPeriodic(30000) {
+    // Don't poll status if nobody is listening
+    if (listeners.hasAtLeastOneListener()) {
+        client.withHealthCheck { healthy, responseBody ->
+
+            listeners.push(healthy ? "healthy" : "unhealthy", responseBody)
+        }
+    }
+}
+
 server.websocketHandler { WebSocket socket ->
     listeners.addListener socket
 
@@ -79,10 +89,7 @@ class DropwizardClient {
 
     def withMetrics(Closure handler) {
         client.getNow("/metrics") { HttpClientResponse response ->
-            if (serverUnreachable) {
-                serverUnreachable = false
-                connectionRestoredHandler()
-            }
+            connectionSucceeded()
 
             def buffer = new Buffer()
 
@@ -94,6 +101,24 @@ class DropwizardClient {
             response.endHandler {
                 String data = buffer.toString() // Bug in the overloaded method allowing encoding to be set
                 handler(new JsonSlurper().parseText(data))
+            }
+        }
+    }
+
+    def withHealthCheck(Closure handler) {
+        client.getNow("/healthcheck") { HttpClientResponse response ->
+            connectionSucceeded()
+
+            def healthy = response.statusCode == 200
+
+            def buffer = new Buffer()
+
+            response.dataHandler { Buffer data ->
+                buffer << data
+            }
+
+            response.endHandler {
+                handler(healthy, buffer.toString())
             }
         }
     }
@@ -113,6 +138,13 @@ class DropwizardClient {
         } else {
             System.err.println("Http client exception: ${ex.message}")
             ex.printStackTrace(System.err)
+        }
+    }
+
+    def connectionSucceeded() {
+        if (serverUnreachable) {
+            serverUnreachable = false
+            connectionRestoredHandler()
         }
     }
 

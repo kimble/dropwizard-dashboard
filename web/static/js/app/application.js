@@ -38,6 +38,12 @@ function initializeWebsocketConnection() {
             if (json.namespace === "connectionRestored") {
                 Dropwizard.bindings.proxyConnectionToDropwizardRestored(true);
             }
+            if (json.namespace === "healthy") {
+                Dropwizard.bindings.healthCheckFailed(false);
+            }
+            if (json.namespace === "unhealthy") {
+                Dropwizard.bindings.healthCheckFailed(json.payload);
+            }
         };
 
         socket.onerror = function(event) {

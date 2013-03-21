@@ -11,6 +11,8 @@
 
         beforeSocketConnect : ko.observable(),
 
+        healthCheckFailed: ko.observable(false),
+
         pageComponents : ko.observableArray(),
         metrics : ko.observable()
     };
