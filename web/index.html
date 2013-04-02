@@ -87,6 +87,10 @@
         <div class="alert alert-error" data-bind="visible: connectionToProxyLost">
             Lost connection to proxy - Refresh page to reconnect
         </div>
+        <div class="alert alert-error" data-bind="visible: healthCheckFailed">
+            Warning! Server healthcheck failed.
+            <pre data-bind="text: healthCheckFailed"></pre>
+        </div>
 
 
         <!--------
