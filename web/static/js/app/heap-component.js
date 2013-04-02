@@ -11,15 +11,22 @@
             strokeStyle:'rgb(240, 240, 240)',
             fillStyle:'rgb(250, 250, 250)',
             lineWidth: 1,
-            millisPerLine: 1000,
+            millisPerLine: 60 * 1000,
             verticalSections: 4
         },
+
         labels: {
-            fillStyle:'rgb(0, 0, 0)'
+            fillStyle: '#333333',
+            lineWidth: 2
         },
+
         resetBounds : false,
+        scaleSmoothing: 1.5,
         minValue: 0,
-        maxValue: 1
+
+        maxValue: 1,
+        millisPerPixel: 710, /* Roughly:  (minutes * 60 * 1000) / chart-width */
+        timestampFormatter: SmoothieChart.timeFormatter
     };
 
     function HeapBindings() {
@@ -72,9 +79,9 @@
             var smoothie = new SmoothieChart(chartOptions);
             smoothie.streamTo(document.getElementById("jvm_heap_smoothie_chart"), 1300);
             smoothie.addTimeSeries(used, {
-                strokeStyle:'rgb(70, 70, 70)',
-                fillStyle:'rgba(70, 70, 70, 0.2)',
-                lineWidth:2
+                strokeStyle:    'rgb(70, 70, 70)',
+                fillStyle:      'rgba(70, 70, 70, 0.2)',
+                lineWidth:      2
             });
 
             bindings.virtualMachineHeap.subscribe(updateSmoothieChart);
