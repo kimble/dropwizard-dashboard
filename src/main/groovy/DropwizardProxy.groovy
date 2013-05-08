@@ -1,10 +1,12 @@
 import groovy.json.JsonBuilder
+import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.vertx.groovy.core.Vertx
 import org.vertx.groovy.core.buffer.Buffer
 import org.vertx.groovy.core.http.HttpClient
 import org.vertx.groovy.core.http.HttpClientResponse
 import org.vertx.groovy.core.http.HttpServer
 import org.vertx.groovy.core.http.WebSocket
+import org.vertx.java.core.http.impl.ws.Base64
 
 import java.util.concurrent.CopyOnWriteArraySet
 import groovy.json.JsonSlurper
@@ -87,8 +89,15 @@ class DropwizardClient {
         connectionLostHandler = handler
     }
 
+    static def basicAuthHeaders() {
+        Map<String, String> headers = new HashMap<String,String>();
+        Base64 base64key = Base64.encodeBytes("upsellsadmin:pha3zy5ry8mi".getBytes(), Base64.DONT_BREAK_LINES);
+        headers.put(HttpHeaders.Names.AUTHORIZATION, "Basic "+base64key);
+        return headers;
+    }
+
     def withMetrics(Closure handler) {
-        client.getNow("/metrics") { HttpClientResponse response ->
+        client.getNow("/metrics", basicAuthHeaders()) { HttpClientResponse response ->
             connectionSucceeded()
 
             def buffer = new Buffer()
@@ -106,7 +115,9 @@ class DropwizardClient {
     }
 
     def withHealthCheck(Closure handler) {
-        client.getNow("/healthcheck") { HttpClientResponse response ->
+
+
+        client.getNow("/healthcheck", basicAuthHeaders() ) { HttpClientResponse response ->
             connectionSucceeded()
 
             def healthy = response.statusCode == 200
