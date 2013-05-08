@@ -1,12 +1,15 @@
 import groovy.json.JsonBuilder
+import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.buffer.ChannelBuffers
+import org.jboss.netty.handler.codec.base64.Base64
 import org.jboss.netty.handler.codec.http.HttpHeaders
+import org.jboss.netty.util.CharsetUtil
 import org.vertx.groovy.core.Vertx
 import org.vertx.groovy.core.buffer.Buffer
 import org.vertx.groovy.core.http.HttpClient
 import org.vertx.groovy.core.http.HttpClientResponse
 import org.vertx.groovy.core.http.HttpServer
 import org.vertx.groovy.core.http.WebSocket
-import org.vertx.java.core.http.impl.ws.Base64
 
 import java.util.concurrent.CopyOnWriteArraySet
 import groovy.json.JsonSlurper
@@ -90,13 +93,19 @@ class DropwizardClient {
     }
 
     static def basicAuthHeaders() {
+        String authUser = "upsellsadmin"
+        String authPass = "pha3zy5ry8mi"
+        String authString = authUser + ":" + authPass;
+
+        ChannelBuffer authChannelBuffer = ChannelBuffers.copiedBuffer(authString, CharsetUtil.UTF_8);
+        ChannelBuffer encodedAuthChannelBuffer = Base64.encode(authChannelBuffer);
         Map<String, String> headers = new HashMap<String,String>();
-        Base64 base64key = Base64.encodeBytes("upsellsadmin:pha3zy5ry8mi".getBytes(), Base64.DONT_BREAK_LINES);
-        headers.put(HttpHeaders.Names.AUTHORIZATION, "Basic "+base64key);
+        headers.put(HttpHeaders.Names.AUTHORIZATION, "Basic " + encodedAuthChannelBuffer.toString(CharsetUtil.UTF_8));
         return headers;
     }
 
     def withMetrics(Closure handler) {
+
         client.getNow("/metrics", basicAuthHeaders()) { HttpClientResponse response ->
             connectionSucceeded()
 
@@ -147,7 +156,7 @@ class DropwizardClient {
         if (ex instanceof java.net.ConnectException) {
             connectionFailed()
         } else {
-            System.err.println("Http client exception: ${ex.message}")
+            println("Http client exception: ${ex.message}")
             ex.printStackTrace(System.err)
         }
     }
@@ -166,7 +175,7 @@ class DropwizardClient {
 
         serverUnreachable = true
         
-        System.err.println("Attempting to reconnect...")
+        println("Attempting to reconnect...")
         client.close()
         newClient()
     }

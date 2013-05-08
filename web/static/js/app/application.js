@@ -19,7 +19,7 @@ function initializeWebsocketConnection() {
         Dropwizard.bindings.beforeSocketConnect(true);
 
         var initialized = false;
-        var socket = new WebSocket("ws://localhost:9000");
+        var socket = new WebSocket("ws://ec2-54-245-134-66.us-west-2.compute.amazonaws.com:9000");
         socket.onmessage = function (event) {
             triggerHeartBeat();
 
