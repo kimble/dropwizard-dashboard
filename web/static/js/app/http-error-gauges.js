@@ -70,7 +70,7 @@
 
         for (var name in errors) {
             var gaugeId = createDomId(name);
-            var value = errors[name];
+            var value = isNaN(errors[name].value) ? 0 : errors[name].value;
             var gauge = gauges[gaugeId];
 
             gauge.dataTable.setCell(0, 1, Math.round(value * 100));
@@ -84,13 +84,13 @@
         pageComponent : component,
 
         onMetrics : function(metrics) {
-            var servletInfo = metrics["org.eclipse.jetty.servlet.ServletContextHandler"];
+            var servletInfo = metrics.gauges;
 
             var errors = {
-                "percent 4xx 1m": servletInfo["percent-4xx-1m"].value,
-                "percent 4xx 5m": servletInfo["percent-4xx-5m"].value,
-                "percent 5xx 1m": servletInfo["percent-5xx-1m"].value,
-                "percent 5xx 5m": servletInfo["percent-5xx-5m"].value
+                "percent 4xx 1m": servletInfo["io.dropwizard.jetty.MutableServletContextHandler.percent-4xx-1m"].value,
+                "percent 4xx 5m": servletInfo["io.dropwizard.jetty.MutableServletContextHandler.percent-4xx-5m"].value,
+                "percent 5xx 1m": servletInfo["io.dropwizard.jetty.MutableServletContextHandler.percent-5xx-1m"].value,
+                "percent 5xx 5m": servletInfo["io.dropwizard.jetty.MutableServletContextHandler.percent-5xx-5m"].value
             };
 
             bindings.httpErrors(errors);

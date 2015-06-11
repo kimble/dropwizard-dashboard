@@ -60,23 +60,24 @@
         pageComponent : component,
 
         onMetrics : function(update) {
-            var servletInfo = update["org.eclipse.jetty.servlet.ServletContextHandler"];
+            var servletInfo = update.meters;
 
-            var successCodes = servletInfo["2xx-responses"].count - getNumberOfMetricRequestsToIgnore();
+			/**
+            var successCodes = servletInfo["io.dropwizard.jetty.MutableServletContextHandler.2xx-responses"].count - getNumberOfMetricRequestsToIgnore();
 
             if (successCodes < 0) {
                 // This can happen if our ignored requests is innaccurate.
                 // Recover as best as we can.
                 successCodes = 0;
-                setNumberOfMetricRequestsToIgnore(servletInfo["2xx-responses"].count);
-            }
+                setNumberOfMetricRequestsToIgnore(servletInfo["io.dropwizard.jetty.MutableServletContextHandler.2xx-responses"].count);
+            }**/
 
             var statusCodeCounts = {
-                1: servletInfo["1xx-responses"].count,
-                2: successCodes,
-                3: servletInfo["3xx-responses"].count,
-                4: servletInfo["4xx-responses"].count,
-                5: servletInfo["5xx-responses"].count
+                1: servletInfo["io.dropwizard.jetty.MutableServletContextHandler.1xx-responses"].count,
+                2: servletInfo["io.dropwizard.jetty.MutableServletContextHandler.2xx-responses"].count, //successCodes,
+                3: servletInfo["io.dropwizard.jetty.MutableServletContextHandler.3xx-responses"].count,
+                4: servletInfo["io.dropwizard.jetty.MutableServletContextHandler.4xx-responses"].count,
+                5: servletInfo["io.dropwizard.jetty.MutableServletContextHandler.5xx-responses"].count
             };
 
             var total = statusCodeCounts[1] + statusCodeCounts[2] + statusCodeCounts[3] +
