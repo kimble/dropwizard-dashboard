@@ -8,11 +8,13 @@ Dropwizard is a well instrumented and productive framework for building producti
 
 While I was working on the client side of the dashboard I thought it would be fun to have a look at Knockout.js for data binding. I quite liked the declarative way it solves a lot of common problems related to data binding.
 
-
+Latest update
+=======================================
+Edouard DE Oliveira : Fixed metrics parsing to comply with latest DropWizard 0.8.1 format as it was unsuitable since DropWizard 0.7.1 at least
 
 Screenshots
 ------------
-![CSS dark](https://github.com/kimble/dropwizard-dashboard/raw/master/screenshots/dashboard.png)
+![CSS dark](https://github.com/edeoliveira/dropwizard-dashboard/raw/master/screenshots/dashboard.png)
 
 
 Give it a spin

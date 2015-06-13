@@ -14,7 +14,8 @@
         applicationLoggingTrace : ko.observable({}),
         applicationLoggingInfo : ko.observable({}),
         applicationLoggingWarn : ko.observable({}),
-        applicationLoggingError : ko.observable({})
+        applicationLoggingError : ko.observable({}),
+		applicationLoggingDebug : ko.observable({})
     };
 
     var updateLogging = function(logging) {
@@ -26,26 +27,30 @@
         pageComponent : component,
 
         onMetrics : function(update) {
-            var logging = update["ch.qos.logback.core.Appender"];
+            var logging = update.meters;
             bindings.applicationLoggingAll({
-                count   : logging.all.count,
-                m1      : roundNumber(logging.all.m1, 2)
+                count   : logging["ch.qos.logback.core.Appender.all"].count,
+                m1      : roundNumber(logging["ch.qos.logback.core.Appender.all"].m1_rate, 2)
             });
 
             bindings.applicationLoggingTrace({
-                count : logging.trace.count
+                count : logging["ch.qos.logback.core.Appender.trace"].count
             });
 
             bindings.applicationLoggingInfo({
-                count : logging.info.count
+                count : logging["ch.qos.logback.core.Appender.info"].count
             });
 
             bindings.applicationLoggingWarn({
-                count : logging.warn.count
+                count : logging["ch.qos.logback.core.Appender.warn"].count
             });
 
             bindings.applicationLoggingError({
-                count : logging.error.count
+                count : logging["ch.qos.logback.core.Appender.error"].count
+            });
+			
+			bindings.applicationLoggingDebug({
+                count : logging["ch.qos.logback.core.Appender.debug"].count
             });
         },
 

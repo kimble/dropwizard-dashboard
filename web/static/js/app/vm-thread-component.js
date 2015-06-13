@@ -36,10 +36,10 @@
 
         onMetrics : function(update) {
             bindings.virtualMachineThreads({
-                states : update.jvm['thread-states'],
-                count : update.jvm.thread_count,
-                daemons : update.jvm.daemon_thread_count,
-                time: update.jvm.current_time
+                states : update.gauges,
+                count : update.gauges["jvm.threads.count"].value,
+                daemons : update.gauges["jvm.threads.daemon.count"].value,
+                time: new Date()
             });
         },
 
@@ -60,10 +60,10 @@
                 ];
 
                 for (var state in threads.states) {
-                    if (threads.states.hasOwnProperty(state)) {
-                        var value = threads.states[state];
+					if (state.match(/jvm\.threads\..*\.count/g)) {
+                        var value = threads.states[state].value;
                         state = prettyPrintString(state);
-                        data.push([ state, Math.round(threads.count * value) ]);
+                        data.push([ state, Math.round(value) ]);
                     }
                 }
 
@@ -74,51 +74,9 @@
     });
 
     function prettyPrintString(string) {
-        string = string.replace("_", " ");
+        string = string.slice(12);
+		string = string.substring(0,string.length-5);
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
-
-    /*
-    var container = document.getElementById("jvm_thread_state_container");
-    var chart = undefined;
-
-    var options = {
-        "width": 300, "height": 250,
-        "chartArea": {
-            left: 10, top: 10,
-            width: "80%", height: "90%"
-        },
-        "is3D": true,
-        "legend": {
-            position: "none"
-        },
-        backgroundColor : {
-            fill : "transparent"
-        }
-    };
-
-    Dropwizard.bindings.googleChartsLoaded.subscribe(function(value) {
-        chart = new google.visualization.PieChart(container);
-    });
-
-    Dropwizard.bindings.virtualMachineThreads.subscribe(function(threads) {
-        var data = [
-            ["Label", "Value"]
-        ];
-
-        for (var state in threads.states) {
-            var value = threads.states[state];
-            state = prettyPrintString(state);
-            data.push([ state, Math.round(threads.count * value) ]);
-        }
-
-        var plot = google.visualization.arrayToDataTable(data);
-        chart.draw(plot, options);
-    });
-
-    function prettyPrintString(string) {
-        string = string.replace("_", " ");
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }*/
 
 })();

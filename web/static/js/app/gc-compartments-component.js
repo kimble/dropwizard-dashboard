@@ -56,6 +56,8 @@
             });
 
             for (var name in memoryPools) {
+				if (!name.match(/jvm\.memory\.pools.*\.usage/g))
+					continue;
                 var value = memoryPools[name];
                 var gaugeId = createDomId(name);
                 var container = view.createGaugeContainer(gaugeId, name);
@@ -71,8 +73,10 @@
         }
 
         for (var name in memoryPools) {
+			if (!name.match(/jvm\.memory\.pools.*\.usage/g))
+				continue;
             var gaugeId = createDomId(name);
-            var value = memoryPools[name];
+            var value = isNaN(memoryPools[name].value) ? 0 : memoryPools[name].value;
             var gauge = gauges[gaugeId];
 
             gauge.dataTable.setCell(0, 1, Math.round(value * 100));
@@ -86,8 +90,7 @@
         pageComponent : component,
 
         onMetrics : function(metrics) {
-            var memory_pool_usages = metrics.jvm.memory.memory_pool_usages;
-            bindings.memoryPools(memory_pool_usages);
+            bindings.memoryPools(metrics.gauges);
         }
     });
 
@@ -95,7 +98,7 @@
 
 
     function prettyPrintString(string) {
-        string = string.replace("_", " ");
+        string = string.slice(17).replace(/[\.\-_]/g, " ");
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
@@ -117,7 +120,7 @@
         else if (name.match(/old|tenured/i)) {
             return "The pool containing objects that have existed for some time in the survivor space.";
         }
-        else if (name.match(/permanent|perm gen/i)) {
+        else if (name.match(/permanent|perm/i)) {
             return "The pool containing all the reflective data of the virtual machine itself, such as class and method objects. With Java VMs that use class data sharing, this generation is divided into read-only and read-write areas.";
         }
         else {

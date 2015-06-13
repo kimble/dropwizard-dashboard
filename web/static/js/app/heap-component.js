@@ -24,7 +24,6 @@
         scaleSmoothing: 1.5,
         minValue: 0,
 
-        maxValue: 1,
         millisPerPixel: 710, /* Roughly:  (minutes * 60 * 1000) / chart-width */
         timestampFormatter: SmoothieChart.timeFormatter
     };
@@ -50,7 +49,7 @@
     var used = new TimeSeries();
 
     var updateSmoothieChart = function(heap) {
-        used.append(heap.time, heap.used / heap.max);
+        used.append(heap.time, heap.used / 1000000);
     };
 
     Dropwizard.registerComponent({
@@ -58,13 +57,13 @@
         pageComponent : component,
 
         onMetrics : function(update) {
-            var memory = update.jvm.memory;
+            var memory = update.gauges;
             bindings.virtualMachineHeap({
-                init        : memory.heapInit,
-                used        : memory.heapUsed,
-                committed   : memory.heapCommitted,
-                max         : memory.heapMax,
-                time        : update.jvm.current_time
+                init        : memory['jvm.memory.heap.init'].value,
+                used        : memory['jvm.memory.heap.used'].value,
+                committed   : memory['jvm.memory.heap.committed'].value,
+                max         : memory['jvm.memory.heap.max'].value,
+                time        : new Date()
             })
         },
 
@@ -78,12 +77,13 @@
 
             var smoothie = new SmoothieChart(chartOptions);
             smoothie.streamTo(document.getElementById("jvm_heap_smoothie_chart"), 1300);
-            smoothie.addTimeSeries(used, {
-                strokeStyle:    'rgb(70, 70, 70)',
-                fillStyle:      'rgba(70, 70, 70, 0.2)',
+
+			smoothie.addTimeSeries(used, {
+                strokeStyle:    'rgb(68, 173, 55)',
+                fillStyle:      'rgba(68, 173, 55, 0.2)',
                 lineWidth:      2
             });
-
+			
             bindings.virtualMachineHeap.subscribe(updateSmoothieChart);
         }
     });

@@ -5,14 +5,13 @@
 
         self.vminfo = ko.observable({
             name    : 'Unknown',
-            version : 'Unknown',
             time    : new Date(0),
             uptime  : 0
         });
 
         self.readableVmUptime = ko.computed(function() {
             var uptime = self.vminfo().uptime;
-            return moment.humanizeDuration(uptime * 1000);
+            return moment.humanizeDuration(uptime);
         });
 
         self.readableServerTime = ko.computed(function() {
@@ -27,14 +26,12 @@
         bindings : bindings,
 
         onMetrics : function(metrics) {
-            var jvm = metrics.jvm;
-            var vm = jvm.vm;
+            var g = metrics.gauges;
 
             bindings.vminfo({
-                name    : vm.name,
-                version : vm.version,
-                time    : jvm.current_time,
-                uptime  : jvm.uptime
+                name    : g['jvm.attribute.vendor'].value,
+                time    : new Date(),
+                uptime  : g['jvm.attribute.uptime'].value
             });
         }
     });
