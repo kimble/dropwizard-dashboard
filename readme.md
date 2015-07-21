@@ -43,6 +43,15 @@ http://smoothiecharts.org/
 https://developers.google.com/chart/
 
 
+
+Things to do
+-------------
+
+**Ditch Knockout:** It does not bring much to the table for this application. Just accidental complexity.
+
+**Introduce tabs:** The dashboard is too long. Perhaps it would be a good idea to introduce tabs + a small page with a quick overview. 
+
+
 Contributions
 --------------
 
