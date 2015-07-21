@@ -2,6 +2,8 @@ package com.developerb.dd
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.BinaryNode
+import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.TextNode
 import io.vertx.core.Vertx
 import io.vertx.core.VertxException
@@ -108,7 +110,8 @@ class DropwizardHttpProxy {
             if (!accessible) {
                 log.info("Restored connection to remote Dropwizard application!")
 
-                listeners.push("connectionRestored", true)
+                JsonNode state = BooleanNode.TRUE;
+                listeners.push("connectionRestored", state)
                 accessible = true
             }
         }
@@ -117,7 +120,8 @@ class DropwizardHttpProxy {
             if (accessible) {
                 log.warn("Lost connection to remote Dropwizard application: " + trouble.getMessage())
 
-                listeners.push("connectionLost", true)
+                JsonNode state = BooleanNode.FALSE;
+                listeners.push("connectionLost", state)
                 accessible = false
             }
         }
