@@ -34,7 +34,7 @@
 
 
         <div class="container">
-            <div class="row">
+            <div class="row app-header">
                 <div class="col-md-4" style="text-align: center">
                     <h1>Dropwizard Dashboard</h1>
 
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <table class="table hiddenFromStart">
+                    <table class="table table-hover hiddenFromStart">
                         <tbody>
                             <tr>
                                 <th>Virtual machine name/version:</th>
@@ -55,7 +55,7 @@
                             </tr>
                             <tr>
                                 <th>Server time:</th>
-                                <td><span data-bind="text: readableServerTime"></span> <i id="heart" class="icon-heart" style="opacity: 0.3"></i></td>
+                                <td><span data-bind="text: readableServerTime"></span> <span id="heart" class="glyphicon glyphicon-heart" style="opacity: 0.3"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -63,11 +63,11 @@
             </div>
 
 
-            <div class="alert alert-error" data-bind="visible: connectionToProxyLost">
+            <div class="alert alert-danger" data-bind="visible: connectionToProxyLost">
                 Lost connection to proxy - Refresh page to reconnect
             </div>
 
-            <div class="alert alert-error" data-bind="visible: healthCheckFailed">
+            <div class="alert alert-danger" data-bind="visible: healthCheckFailed">
                 Warning! Server healthcheck failed.
                 <pre data-bind="text: healthCheckFailed"></pre>
             </div>

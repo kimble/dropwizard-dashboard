@@ -4,6 +4,31 @@ body {
     padding-bottom: 40px;
 }
 
+.app-header {
+    border-radius: 3px;
+    background-color: #555;
+    color: white;
+    margin-top: 2em;
+}
+
+.app-header .table {
+    margin-top: 1em;
+}
+
+.app-header h1 {
+    font-family: "Arial Black", sans-serif;
+}
+
+.app-header .table td {
+    border-radius: 3px;
+    cursor: default;
+    font-family: "Ubuntu Mono", monospace;
+}
+
+.app-header .table tr:hover {
+    color: #333;
+}
+
 p.info {
     font-size: 1.1em;
     font-style: italic;
