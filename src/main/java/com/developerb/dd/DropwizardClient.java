@@ -21,8 +21,7 @@ import java.util.function.BiConsumer;
  */
 public class DropwizardClient {
 
-
-    private static final Logger log = LoggerFactory.getLogger(DropwizardHttpProxy.class);
+    private static final Logger log = LoggerFactory.getLogger(DropwizardClient.class);
 
     private final HttpClient client;
     private final ServerState state = new ServerState();

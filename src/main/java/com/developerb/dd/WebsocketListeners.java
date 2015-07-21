@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -44,7 +43,7 @@ public class WebsocketListeners {
 
     public void addListener(ServerWebSocket socket) {
         log.info("Accepted websocket connection: " + socket);
-        DefaultGroovyMethods.leftShift(sockets, socket);
+        sockets.add(socket);
     }
 
     public void removeListener(ServerWebSocket socket) {
