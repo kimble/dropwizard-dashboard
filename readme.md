@@ -30,12 +30,16 @@ _Ps! This will download and install Gradle in your home folder!_
 Relevant technologies and libraries
 -------------------------------------
 http://vertx.io/
+
 http://dropwizard.codahale.com/
 
 http://knockoutjs.com/
+
 http://momentjs.com/
+
 http://smoothiecharts.org/
-https://google-developers.appspot.com/chart/
+
+https://developers.google.com/chart/
 
 
 Contributions
