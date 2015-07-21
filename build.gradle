@@ -1,33 +1,41 @@
-apply plugin: 'application'
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'com.github.johnrengelman.shadow' version '1.2.2'
+}
 
-mainClassName = 'com.developerb.dd.DropwizardDashboardStarter'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
-def groovyVersion = '2.1.1'
-def vertxVersion = '1.3.1.final'
+if (!JavaVersion.current().java8Compatible) {
+    throw new IllegalStateException('''A Haiku:
+                                      |  This needs Java 8,
+                                      |  You are using something else,
+                                      |  Refresh. Try again.'''.stripMargin())
+}
+
+ext {
+    vertxVersion = '3.0.0'
+}
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy:' + groovyVersion,
-            'org.codehaus.groovy:groovy-json:' + groovyVersion,
-            'org.vert-x:vertx-lang-groovy:' + vertxVersion
+    compile 'io.vertx:vertx-web:' + vertxVersion
+    compile 'io.vertx:vertx-lang-groovy:' + vertxVersion
 }
 
-task uberjar(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
-    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
-
+shadowJar {
+    classifier = 'fatty'
     manifest {
-        attributes 'Main-Class': mainClassName
+        attributes 'Main-Class': 'com.developerb.dd.DropwizardDashboardStarter'
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
     }
 }
 
-task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
-    gradleVersion = '1.5'
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
 }
 

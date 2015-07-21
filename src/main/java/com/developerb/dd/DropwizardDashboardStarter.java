@@ -1,13 +1,11 @@
 package com.developerb.dd;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.impl.DefaultVertx;
-import org.vertx.java.core.impl.VertxInternal;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.deploy.impl.VerticleManager;
-
-import java.io.File;
-import java.net.URL;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
 
 /**
  * Fragile boot script making it possible to try out Dropwizard Dashboard
@@ -15,49 +13,46 @@ import java.net.URL;
  *
  * There has to be a more convenient way to do this..?
  *
- * @author Kim A. Betti <kim@developer-b.com>
+ * @author Kim A. Betti
  */
 public class DropwizardDashboardStarter {
 
-    private final VerticleManager manager;
+    private static final Logger log = LoggerFactory.getLogger(DropwizardDashboardStarter.class);
 
-    public static void main(String... args) throws Exception {
-        DropwizardDashboardStarter dash = new DropwizardDashboardStarter();
-        dash.runVertx();
-        dash.join();
+    public static void main(String... args) {
+
+        Vertx vertx = Vertx.vertx();
+
+        WebsocketListeners listeners = new WebsocketListeners();
+        DropwizardHttpProxy proxy = new DropwizardHttpProxy("localhost", 8081, vertx);
+
+        Router router = Router.router(vertx);
+        router.route().handler(StaticHandler.create());
+
+        HttpServer httpServer = vertx.createHttpServer()
+                .requestHandler(router::accept);
+
+        httpServer.websocketHandler(websocket -> {
+            listeners.addListener(websocket);
+            websocket.endHandler(event -> listeners.removeListener(websocket));
+        });
+
+        vertx.setPeriodic(3000, ping -> {
+            if (listeners.hasAtLeastOneListener()) {
+                proxy.fetchMetrics(listeners);
+            }
+        });
+
+        vertx.setPeriodic(10000, ping -> {
+            if (listeners.hasAtLeastOneListener()) {
+                proxy.runHealthChecks(listeners);
+            }
+        });
+
+
+        int serverPort = 9000;
+        httpServer.listen(serverPort);
+        log.info("Initialized, listening on port " + serverPort);
     }
-
-    public DropwizardDashboardStarter() throws Exception {
-        VertxInternal vertx = new DefaultVertx();
-        manager = new VerticleManager(vertx, null);
-    }
-
-    private void runVertx() throws Exception {
-        String main = "src/main/groovy/DropwizardProxy.groovy";
-        boolean worker = false;
-        JsonObject config = null;
-        int instances = 1;
-        String includes = null;
-        File currentModDir = new File(".");
-
-        URL[] urls = new URL[]{
-                new File(".").toURI().toURL()
-        };
-
-        manager.deployVerticle(worker, main, config, urls, instances, currentModDir, includes, doneHandler);
-    }
-
-    private void join() throws InterruptedException {
-        manager.block();
-    }
-
-    private final Handler<String> doneHandler = new Handler<String>() {
-
-        @Override
-        public void handle(String event) {
-            System.out.println("I'm done?!");
-        }
-
-    };
 
 }
