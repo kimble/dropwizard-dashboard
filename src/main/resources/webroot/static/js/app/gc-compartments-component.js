@@ -98,7 +98,7 @@
 
 
     function prettyPrintString(string) {
-        string = string.slice(17).replace(/[\.\-_]/g, " ");
+        string = string.slice(17).replace(/[\.\-_]/g, " ").replace(/ Usage/i, "");
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
@@ -122,6 +122,12 @@
         }
         else if (name.match(/permanent|perm/i)) {
             return "The pool containing all the reflective data of the virtual machine itself, such as class and method objects. With Java VMs that use class data sharing, this generation is divided into read-only and read-write areas.";
+        }
+        else if (name === "jvm.memory.pools.Metaspace.usage") {
+            return "Java class metadata allocated in native memory.";
+        }
+        else if (name === "jvm.memory.pools.Compressed-Class-Space.usage") {
+            return "Subset of the metaspace pool (if compressed object pointers are enabled).";
         }
         else {
             return "Unknown";
