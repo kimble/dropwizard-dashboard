@@ -1,6 +1,8 @@
 package com.developerb.dd
 
-import groovy.json.JsonSlurper
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.TextNode
 import io.vertx.core.Vertx
 import io.vertx.core.VertxException
 import io.vertx.core.http.HttpClient
@@ -18,8 +20,6 @@ class DropwizardHttpProxy {
     private static final Logger log = LoggerFactory.getLogger(DropwizardHttpProxy.class);
 
     private final HttpClient client;
-
-    private final JsonSlurper jsonSlurper = new JsonSlurper()
     private final ServerState state = new ServerState()
 
 
@@ -61,9 +61,10 @@ class DropwizardHttpProxy {
                 state.onSuccessfulConnection(listeners)
 
                 String responseText = body.toString("utf-8")
-                Object metrics = jsonSlurper.parseText(responseText)
+                ObjectMapper jackson = new ObjectMapper()
+                JsonNode json = jackson.readTree(responseText)
 
-                listeners.push("metrics", metrics)
+                listeners.push("metrics", json)
             }
         }
     }
@@ -90,7 +91,10 @@ class DropwizardHttpProxy {
                 state.onSuccessfulConnection(listeners)
 
                 String responseText = body.toString("utf-8")
-                listeners.push(healthy ? "healthy" : "unhealthy", responseText)
+                String topic = healthy ? "healthy" : "unhealthy"
+                JsonNode payload = new TextNode(responseText)
+
+                listeners.push(topic, payload);
             }
         }
     }

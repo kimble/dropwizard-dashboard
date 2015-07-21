@@ -1,9 +1,9 @@
 plugins {
     id 'java'
     id 'groovy'
+    id 'application'
     id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
-
 
 repositories {
     jcenter()
@@ -35,7 +35,11 @@ shadowJar {
     }
 }
 
+run {
+    args 'config'
+}
+
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
 }
-
