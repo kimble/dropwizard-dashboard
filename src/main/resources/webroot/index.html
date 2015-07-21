@@ -7,109 +7,93 @@
         <meta name="description" content="Vertx experiment - Dropwizard Dashboard">
         <meta name="author" content="Kim A. Betti">
 
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <style type="text/css">
-            body {
-                padding-top: 60px;
-                padding-bottom: 40px;
-            }
-        </style>
-        <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+
         <link href="/static/css/application.css" rel="stylesheet">
     </head>
     <body>
 
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a>
-                <a class="brand" href="#">Dropwizard Dashboard v0.8.1</a>
 
-                <div class="nav-collapse">
-                    <ul class="nav">
-                        <li class="active"><a href="#">Dashboard</a></li>
-                        <li><a href="https://github.com/edeoliveira/">Github</a></li>
-                        <li><a href="http://blog.developer-b.com/">Blog</a></li>
-                    </ul>
 
-                    <ul class="nav"  data-bind="template: { name: 'navigation-component-link', foreach: pageComponents }"></ul>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Dropwizard Dashboard</a>
                 </div>
 
-                <script type="text/html" id="navigation-component-link">
-                    <li><a href="#${dom_id}">${name}</a></li>
-                </script>
+                <ul class="nav navbar-nav" data-bind="template: { name: 'navigation-component-link', foreach: pageComponents }"></ul>
             </div>
-        </div>
-    </div>
+
+            <script type="text/html" id="navigation-component-link">
+                <li><a href="#${dom_id}">${name}</a></li>
+            </script>
+        </nav>
 
 
-    <div class="container">
 
-        <div class="hero-unit">
+
+        <div class="container">
             <div class="row">
-                <div class="span5" style="text-align: center">
+                <div class="col-md-4" style="text-align: center">
                     <h1>Dropwizard Dashboard</h1>
 
                     <div class="alert alert-info" data-bind="visible: !connectionToProxyEstablished">
                         Please wait while contact with server is established!
                     </div>
                 </div>
-                <div class="span5">
+                <div class="col-md-8">
                     <table class="table hiddenFromStart">
                         <tbody>
-                        <tr>
-                            <th>Virtual machine name/version:</th>
-                            <td><span data-bind="text: vminfo().name"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Application uptime:</th>
-                            <td><span data-bind="text: readableVmUptime"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Server time:</th>
-                            <td><span data-bind="text: readableServerTime"></span> <i id="heart" class="icon-heart" style="opacity: 0.3"></i></td>
-                        </tr>
+                            <tr>
+                                <th>Virtual machine name/version:</th>
+                                <td><span data-bind="text: vminfo().name"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Application uptime:</th>
+                                <td><span data-bind="text: readableVmUptime"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Server time:</th>
+                                <td><span data-bind="text: readableServerTime"></span> <i id="heart" class="icon-heart" style="opacity: 0.3"></i></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
 
-        <div class="alert alert-error" data-bind="visible: connectionToProxyLost">
-            Lost connection to proxy - Refresh page to reconnect
-        </div>
-        
-        <div class="alert alert-error" data-bind="visible: healthCheckFailed">
-            Warning! Server healthcheck failed.
-            <pre data-bind="text: healthCheckFailed"></pre>
-        </div>
-
-
-        <!--------
-             R e n d e r    a l l    p a g e    c o m p o n e n t s
-                                                             ---------->
-
-        <div data-bind="template: { name: 'component-template', foreach: pageComponents }"></div>
-
-        <script type="text/html" id="component-template">
-            <a name="${dom_id}"></a>
-            <div class="page-header hiddenFromStart">
-                <h1>${name} <small>${shortDescription}</small></h1>
+            <div class="alert alert-error" data-bind="visible: connectionToProxyLost">
+                Lost connection to proxy - Refresh page to reconnect
             </div>
-            <div class="row" id="${dom_id}"></div>
-        </script>
 
-        <hr>
+            <div class="alert alert-error" data-bind="visible: healthCheckFailed">
+                Warning! Server healthcheck failed.
+                <pre data-bind="text: healthCheckFailed"></pre>
+            </div>
 
-        <footer>
-            <p><a href="http://no.linkedin.com/pub/kim-betti/30/4b4/562"><i class="icon-check"></i> <b>Kim A. Betti</b></a></p>
-			<p><a href="https://github.com/edeoliveira/"><i class="icon-check"></i> <b>Edouard De Oliveira</b></a></p>
-        </footer>
+
+            <!--------
+                 R e n d e r    a l l    p a g e    c o m p o n e n t s
+                                                                 ---------->
+
+            <div data-bind="template: { name: 'component-template', foreach: pageComponents }"></div>
+
+            <script type="text/html" id="component-template">
+                <a name="${dom_id}"></a>
+                <div class="page-header hiddenFromStart">
+                    <h1>${name} <small>${shortDescription}</small></h1>
+                </div>
+                <div class="row" id="${dom_id}"></div>
+            </script>
+
+            <hr>
+
+            <footer>
+                <p><a href="https://github.com/kimble"><span class="glyphicon glyphicon-check"></span> <b>Kim A. Betti</b></a></p>
+                <p><a href="https://github.com/edeoliveira/"><span class="glyphicon glyphicon-check"></span> <b>Edouard De Oliveira</b></a></p>
+            </footer>
+        </div>
 
         <!-- 3rd party -->
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>

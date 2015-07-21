@@ -28,8 +28,8 @@
                 $(container).append(currentRow);
             }
 
-            $(currentRow).append("<div class='span1 gaugeContainer' id='" + gaugeId + "'></div>");
-            $(currentRow).append("<div class='span3'><h2>" + prettyPrintString(name) + "</h2></div>");
+            $(currentRow).append("<div class='col-md-1 gaugeContainer' id='" + gaugeId + "'></div>");
+            $(currentRow).append("<div class='col-md-3'><h2>" + prettyPrintString(name) + "</h2></div>");
 
             return document.getElementById(gaugeId);
         }
