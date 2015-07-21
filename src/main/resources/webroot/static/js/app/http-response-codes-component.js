@@ -1,21 +1,34 @@
 (function() {
 
     var options = {
-        "width": 400, "height": 200,
+        pieHole: 0.4,
+        "is3D": false,
+
+        "width": 400,
+        "height": 200,
+
         "chartArea": {
             left: 10, top: 10,
             width: "80%", height: "90%"
         },
-        "is3D": true,
+
         "legend": {
             position: "right",
             textStyle : {
                 fontSize : 13
             }
         },
+
         backgroundColor : {
             fill : "transparent"
         }
+
+        /* Would be nice to apply proper colors to the different status codes (Green for 2xx and so on..)
+        slices: {
+            0: { color: 'yellow' },
+            1: { color: 'transparent' }
+        }
+        */
     };
 
     var component = {
