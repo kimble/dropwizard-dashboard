@@ -20,7 +20,10 @@ ext {
     vertxVersion = '3.0.0'
 }
 
+mainClassName = 'com.developerb.dd.DropwizardDashboardStarter'
+
 dependencies {
+    compile 'io.vertx:vertx-core:' + vertxVersion
     compile 'io.vertx:vertx-web:' + vertxVersion
 }
 

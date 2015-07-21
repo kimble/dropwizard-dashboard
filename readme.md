@@ -20,7 +20,7 @@ Screenshots
 Give it a spin
 --------------
 
-Fire up a Dropwizard project with the admin interface running on port 8081 (or tweak DropwizardProxy.groovy).
+Fire up a Dropwizard project with the admin interface running on port 8081.
 
 When Dropwizard is running it should only be a matter of running `./gradlew run` and point your browser to http://localhost:9000/.
 
