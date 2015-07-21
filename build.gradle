@@ -20,10 +20,10 @@ ext {
     vertxVersion = '3.0.0'
 }
 
-mainClassName = 'com.developerb.dd.DropwizardDashboardStarter'
 
 dependencies {
     compile 'io.vertx:vertx-core:' + vertxVersion
+    compile 'io.vertx:vertx-codegen:' + vertxVersion
     compile 'io.vertx:vertx-web:' + vertxVersion
 }
 
@@ -37,8 +37,16 @@ shadowJar {
     }
 }
 
+
+// Configure application plugin
+
+mainClassName = 'com.developerb.dd.DropwizardDashboardStarter'
+applicationDefaultJvmArgs = ["-Dhostname=localhost"]
+applicationDefaultJvmArgs = ["-Dport=8081"]
+
+
 run {
-    args 'config'
+    // args 'config'
 }
 
 

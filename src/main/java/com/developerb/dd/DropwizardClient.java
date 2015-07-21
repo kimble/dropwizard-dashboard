@@ -26,34 +26,31 @@ public class DropwizardClient {
     private final HttpClient client;
     private final ServerState state = new ServerState();
     private final ObjectMapper jackson = new ObjectMapper();
+    private final String baseUri;
 
 
-    public DropwizardClient(String hostname, Integer port, Vertx vertx) {
-        if (hostname == null) {
-            throw new IllegalArgumentException("Hostname can't be null");
-        }
-        if (port == null) {
-            throw new IllegalArgumentException("Port can't be null");
-        }
-
+    public DropwizardClient(String hostname, Integer port, String baseUri, Boolean useSsl, Boolean sslTrustAll, Vertx vertx) {
         HttpClientOptions httpOptions = new HttpClientOptions()
                 .setConnectTimeout(10 * 10000)
                 .setIdleTimeout(10 * 1000)
+                .setSsl(useSsl)
+                .setTrustAll(sslTrustAll)
                 .setDefaultHost(hostname)
                 .setDefaultPort(port);
 
-        client = vertx.createHttpClient(httpOptions);
+        this.baseUri = baseUri;
+        this.client = vertx.createHttpClient(httpOptions);
     }
 
 
     void fetchMetrics(WebsocketListeners listeners) {
-        client.getNow("/metrics", new MyResponseHandler(listeners, (response, jsonNode) -> {
+        client.getNow(baseUri + "metrics", new MyResponseHandler(listeners, (response, jsonNode) -> {
             listeners.push("metrics", jsonNode);
         }));
     }
 
     void runHealthChecks(WebsocketListeners listeners) {
-        client.getNow("/healthcheck", new MyResponseHandler(listeners, (response, jsonNode) -> {
+        client.getNow(baseUri + "healthcheck", new MyResponseHandler(listeners, (response, jsonNode) -> {
             boolean healthy = response.statusCode() == 200;
             String topic = healthy ? "healthy" : "unhealthy";
 
@@ -97,12 +94,13 @@ public class DropwizardClient {
         }
 
         private JsonNode deserializeJson(Buffer body) {
+            String responseText = body.toString("utf-8");
+
             try {
-                String responseText = body.toString("utf-8");
                 return jackson.readTree(responseText);
             }
             catch (Exception ex) {
-                log.warn("Failed to de-serialize json response", ex);
+                log.warn("Failed to de-serialize json response: " + responseText, ex);
                 return null;
             }
         }

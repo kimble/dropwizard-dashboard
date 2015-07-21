@@ -23,8 +23,19 @@ public class DropwizardDashboardStarter {
 
         Vertx vertx = Vertx.vertx();
 
+        String baseUri = getSystemProperty("dropwizard.baseUri", "/");
+        String dropwizardHostname = getSystemProperty("dropwizard.hostname", "localhost");
+        Integer dropwizardAdminPort = getSystemInteger("dropwizard.port", 8081);
+        Integer metricsPollInterval = getSystemInteger("dropwizard.metrics.seconds", 3) * 1000;
+        Integer healthcheckPollInterval = getSystemInteger("dropwizard.healthcheck.seconds", 10) * 1000;
+
+        Boolean useSsl = getSystemBoolean("dropwizard.ssl.enable", false);
+        Boolean sslTrustAll = getSystemBoolean("dropwizard.ssl.trustAll", false);
+
+        Integer dashboardServerPort = getSystemInteger("dashboard.port", 9000);
+
         WebsocketListeners listeners = new WebsocketListeners();
-        DropwizardClient proxy = new DropwizardClient("localhost", 8081, vertx);
+        DropwizardClient proxy = new DropwizardClient(dropwizardHostname, dropwizardAdminPort, baseUri, useSsl, sslTrustAll, vertx);
 
         Router router = Router.router(vertx);
         router.route().handler(StaticHandler.create());
@@ -37,22 +48,48 @@ public class DropwizardDashboardStarter {
             websocket.endHandler(event -> listeners.removeListener(websocket));
         });
 
-        vertx.setPeriodic(3000, ping -> {
+        vertx.setPeriodic(metricsPollInterval, ping -> {
             if (listeners.hasAtLeastOneListener()) {
                 proxy.fetchMetrics(listeners);
             }
         });
 
-        vertx.setPeriodic(10000, ping -> {
+        vertx.setPeriodic(healthcheckPollInterval, ping -> {
             if (listeners.hasAtLeastOneListener()) {
                 proxy.runHealthChecks(listeners);
             }
         });
 
 
-        int serverPort = 9000;
-        httpServer.listen(serverPort);
-        log.info("Initialized, listening on port " + serverPort);
+        httpServer.listen(dashboardServerPort);
+        log.info("Initialized, listening on port " + dashboardServerPort);
     }
+
+
+    private static Integer getSystemInteger(String name, Integer fallback) {
+        try {
+            return Integer.parseInt(getSystemProperty(name, fallback.toString()));
+        }
+        catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Expected the value of " + name + " to be a valid integer", ex);
+        }
+    }
+
+    private static Boolean getSystemBoolean(String name, Boolean fallback) {
+        return getSystemProperty(name, fallback.toString()).equalsIgnoreCase("true");
+    }
+
+    private static String getSystemProperty(String name, String fallback) {
+        String value = System.getProperty(name);
+
+        if (value == null) {
+            log.info(name + " not provided, falling back to '" + fallback + "'");
+            return fallback;
+        }
+        else {
+            return value;
+        }
+    }
+
 
 }

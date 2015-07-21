@@ -10,7 +10,7 @@ While I was working on the client side of the dashboard I thought it would be fu
 
 Latest update
 ---------------
-Started upgrading Vertx and Bootstrap to their latest versions. 
+Started upgrading Vertx and Bootstrap to their latest versions.
 
 
 Screenshots
