@@ -22,7 +22,6 @@ ext {
 
 dependencies {
     compile 'io.vertx:vertx-web:' + vertxVersion
-    compile 'io.vertx:vertx-lang-groovy:' + vertxVersion
 }
 
 shadowJar {

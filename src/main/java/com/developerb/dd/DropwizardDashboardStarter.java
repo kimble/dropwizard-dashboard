@@ -24,7 +24,7 @@ public class DropwizardDashboardStarter {
         Vertx vertx = Vertx.vertx();
 
         WebsocketListeners listeners = new WebsocketListeners();
-        DropwizardHttpProxy proxy = new DropwizardHttpProxy("localhost", 8081, vertx);
+        DropwizardClient proxy = new DropwizardClient("localhost", 8081, vertx);
 
         Router router = Router.router(vertx);
         router.route().handler(StaticHandler.create());
