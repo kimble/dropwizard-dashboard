@@ -64,7 +64,7 @@
                 committed   : memory['jvm.memory.heap.committed'].value,
                 max         : memory['jvm.memory.heap.max'].value,
                 time        : new Date()
-            })
+            });
         },
 
         /**
@@ -77,6 +77,7 @@
 
             var smoothie = new SmoothieChart(chartOptions);
             smoothie.streamTo(document.getElementById("jvm_heap_smoothie_chart"), 1300);
+
 
 			smoothie.addTimeSeries(used, {
                 strokeStyle:    'rgb(68, 173, 55)',

@@ -1,6 +1,36 @@
+
+
+window.pubsub = (function() {
+    "use strict";
+
+    var bus = new Bacon.Bus();
+
+    var stream = function(requestedNamespace) {
+        var correctNamespace = function(event) {
+            return requestedNamespace === "*" || event.namespace === requestedNamespace;
+        };
+
+        return bus.filter(correctNamespace).map(".data");
+    };
+
+    // Dead simple pubsub event-bus with reactive
+    // capabilities provided by Bacon.js
+    return {
+        broadcast: function(event) {
+            bus.push(event);
+        },
+
+        takeOne: function(type) {
+            return stream(type).take(1);
+        },
+
+        stream: stream
+    }
+})();
+
+
 google.load('visualization', '1', { packages:['corechart', 'gauge'] });
 google.setOnLoadCallback(googleChartsLoaded);
-
 
 // All components should have registered them self by now
 Dropwizard.applyBindings();
@@ -13,17 +43,19 @@ function googleChartsLoaded() {
 
 function initializeWebsocketConnection() {
 
-    var heart = $("#heart");
-
     if (window.WebSocket) {
         Dropwizard.bindings.beforeSocketConnect(true);
 
         var initialized = false;
         var socket = new WebSocket("ws://localhost:9000");
         socket.onmessage = function (event) {
-            triggerHeartBeat();
-
             var json = JSON.parse(event.data);
+
+            pubsub.broadcast({
+                namespace: json.namespace,
+                data: json.payload
+            });
+
             if (json.namespace === "metrics") {
                 Dropwizard.onMetrics(json.payload);
 
@@ -32,12 +64,8 @@ function initializeWebsocketConnection() {
                     initialized = true;
                 }
             }
-            if (json.namespace === "connectionLost") {
-                Dropwizard.bindings.proxyConnectionToDropwizardLost(true);
-            }
-            if (json.namespace === "connectionRestored") {
-                Dropwizard.bindings.proxyConnectionToDropwizardRestored(true);
-            }
+
+
             if (json.namespace === "healthy") {
                 Dropwizard.bindings.healthCheckFailed(false);
             }
@@ -62,25 +90,38 @@ function initializeWebsocketConnection() {
         alert("Your browser does not support Websockets");
     }
 
-    function triggerHeartBeat() {
-        heart.fadeTo(100, 0.4, function () {
-            heart.fadeTo(300, 0.2);
-        });
-    }
 
-    var body = $("body");
-
-    Dropwizard.bindings.proxyConnectionToDropwizardLost.subscribe(function () {
-        body.fadeTo(500, 0.6);
-    });
-
-    Dropwizard.bindings.proxyConnectionToDropwizardRestored.subscribe(function () {
-        body.fadeTo(500, 1.0);
-    });
-
-    function prettyPrintString(string) {
-        string = string.replace("_", " ");
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
 
 }
+
+pubsub.stream("*").log("Bus activity");
+
+
+/**
+ * Trigger heartbeat when any message is received
+ */
+(function() {
+    var $heart = $("#heart");
+
+    pubsub.stream("*").onValue(function() {
+            $heart.fadeTo(100, 0.4, function () {
+                $heart.fadeTo(300, 0.2);
+            });
+        });
+})();
+
+
+/**
+ * Fade screen when the connection to Dropwizard goes away
+ */
+(function() {
+    var body = $("body");
+
+    pubsub.stream("connectionLost").onValue(function() {
+        body.fadeTo(500, 0.5);
+    });
+
+    pubsub.stream("connectionRestored").onValue(function() {
+        body.fadeTo(500, 1.0);
+    });
+})();

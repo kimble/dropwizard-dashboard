@@ -9,11 +9,13 @@ import io.vertx.core.VertxException;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.util.function.BiConsumer;
 
 /**
@@ -44,18 +46,34 @@ public class DropwizardClient {
 
 
     void fetchMetrics(WebsocketListeners listeners) {
-        client.getNow(baseUri + "metrics", new MyResponseHandler(listeners, (response, jsonNode) -> {
+        HttpClientRequest request = client.get(baseUri + "metrics", new MyResponseHandler(listeners, (response, jsonNode) -> {
             listeners.push("metrics", jsonNode);
         }));
+
+        request.exceptionHandler(trouble -> {
+            if (trouble instanceof SocketException) {
+                state.onFailedConnection(trouble, listeners);
+            }
+        });
+
+        request.end();
     }
 
     void runHealthChecks(WebsocketListeners listeners) {
-        client.getNow(baseUri + "healthcheck", new MyResponseHandler(listeners, (response, jsonNode) -> {
+        HttpClientRequest request = client.get(baseUri + "healthcheck", new MyResponseHandler(listeners, (response, jsonNode) -> {
             boolean healthy = response.statusCode() == 200;
             String topic = healthy ? "healthy" : "unhealthy";
 
             listeners.push(topic, jsonNode);
         }));
+
+        request.exceptionHandler(trouble -> {
+            if (trouble instanceof SocketException) {
+                state.onFailedConnection(trouble, listeners);
+            }
+        });
+
+        request.end();
     }
 
 
