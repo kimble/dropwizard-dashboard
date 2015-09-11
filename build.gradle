@@ -1,12 +1,24 @@
-plugins {
-    id 'java'
-    id 'groovy'
-    id 'application'
-    id 'com.github.johnrengelman.shadow' version '1.2.2'
-}
+apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'application'
+
 
 repositories {
     jcenter()
+}
+
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+    }
 }
 
 if (!JavaVersion.current().java8Compatible) {
@@ -51,5 +63,5 @@ run {
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.6'
 }
