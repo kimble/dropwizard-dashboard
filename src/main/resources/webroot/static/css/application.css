@@ -1,14 +1,15 @@
 
-body {
-    padding-top: 60px;
-    padding-bottom: 40px;
+
+.page-header {
+    font-family: Oswald, sans-serif;
 }
 
 .app-header {
     border-radius: 3px;
     background-color: #555;
     color: white;
-    margin-top: 2em;
+    margin-top: 3em;
+    margin-bottom: 2em;
 }
 
 .app-header .table {
@@ -51,7 +52,8 @@ div.hero-unit {
 }
 
 footer {
-    text-align: right;
+    position: absolute;
+    bottom: 0;
 }
 
 footer a {
@@ -60,4 +62,47 @@ footer a {
 
 footer a:hover {
     text-decoration: none;
+}
+
+
+/* Health check */
+
+.row-health-check .page-header {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.row-health-check .page-header h2 {
+    font-size: 1.6em;
+    margin-bottom: 0;
+}
+
+.health-check {
+    margin: 0.3em 0 0.3em 0.5em;
+}
+
+.health-check .name {
+    font-family: Oswald, sans-serif;
+    font-size: 1.1em;
+    padding: 2px 6px;
+}
+
+.health-check .message {
+    font-family: Oswald, sans-serif;
+    font-size: 0.9em;
+    font-weight: 300;
+    padding: 2px 6px;
+    margin-left: 4px;
+    margin-bottom: 7px;
+}
+
+.health-check .glyphicon {
+    display: none;
+}
+
+.health-check.healthy .glyphicon.healthy {
+    display: inline;
+}
+.health-check.unhealthy .glyphicon.unhealthy {
+    display: inline;
 }

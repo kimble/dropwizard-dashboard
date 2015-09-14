@@ -125,17 +125,21 @@ public class DropwizardClient {
 
     }
 
+    boolean hasBackendConnection() {
+        return state.accessible;
+    }
+
 
     private class ServerState {
 
-        volatile boolean accessible = true;
+        volatile boolean accessible = false;
 
         synchronized void onSuccessfulConnection(WebsocketListeners listeners) {
             if (!accessible) {
                 log.info("Restored connection to remote Dropwizard application!");
 
                 JsonNode state = BooleanNode.TRUE;
-                listeners.push("connectionRestored", state);
+                listeners.push("backend-connected", state);
                 accessible = true;
             }
         }
@@ -145,7 +149,7 @@ public class DropwizardClient {
                 log.warn("Lost connection to remote Dropwizard application: " + trouble.getMessage());
 
                 JsonNode state = BooleanNode.FALSE;
-                listeners.push("connectionLost", state);
+                listeners.push("backend-disconnected", state);
                 accessible = false;
             }
         }

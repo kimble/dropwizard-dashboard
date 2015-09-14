@@ -22,6 +22,8 @@ public class WebsocketListeners {
     private final Set<ServerWebSocket> sockets = new CopyOnWriteArraySet<>();
     private final ObjectMapper jackson = new ObjectMapper();
 
+
+
     public void push(String topic, JsonNode json) {
         ObjectNode response = jackson.createObjectNode();
         response.put("namespace", topic);

@@ -8,10 +8,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 
 /**
- * Fragile boot script making it possible to try out Dropwizard Dashboard
- * without installing or really knowing anything about Vertx.
  *
- * There has to be a more convenient way to do this..?
  *
  * @author Kim A. Betti
  */
@@ -34,8 +31,8 @@ public class DropwizardDashboardStarter {
 
         Integer dashboardServerPort = getSystemInteger("dashboard.port", 9000);
 
-        WebsocketListeners listeners = new WebsocketListeners();
         DropwizardClient proxy = new DropwizardClient(dropwizardHostname, dropwizardAdminPort, baseUri, useSsl, sslTrustAll, vertx);
+        WebsocketListeners listeners = new WebsocketListeners();
 
         Router router = Router.router(vertx);
         router.route().handler(StaticHandler.create());
